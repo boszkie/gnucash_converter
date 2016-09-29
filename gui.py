@@ -2,14 +2,15 @@ from tkinter import *
 from tkinter import ttk
 from tkinter import filedialog
 from decimal import *
+from FileDialogue import *
+from rabo2gnucashconverter import *
 
-#ask for the source file
+# ask for the source file
 def askopenfile():
     options = {
         'defaultextension': '.csv',
         'filetypes': [('all files', '.*'), ('text files', '.csv')],
         'initialdir': 'C:\\home',
-        'parent': root,
         'title': 'open the source rabobank export file'
     }
     
@@ -21,10 +22,14 @@ def askdirectory():
         'initialdir': 'C:\\',
         'mustexist': False,
         'parent': root,
-        'title': 'This is a title'
+        'title': 'folder to save to'
     }
 
     target.set(filedialog.askdirectory(**options))
+
+def convert():
+    converter = rabo2gnucashconverter()
+    converter.convert(source, target, startCum, endCum)
 
 # build window
 root = Tk()
@@ -60,10 +65,9 @@ endCum_entry.grid(column=2, row=5, sticky=(W, E))
 ttk.Label(mainframe, text="final balance").grid(column=3, row=5, sticky=W)
 
 ttk.Label(mainframe, textvariable=messages).grid(column=2, row=1, sticky=(W, E))
-ttk.Button(mainframe, text="Convert", command=askopenfile).grid(column=3, row=7, sticky=W)
+ttk.Button(mainframe, text="Convert", command=convert).grid(column=3, row=7, sticky=W)
 
 for child in mainframe.winfo_children(): child.grid_configure(padx=5, pady=5)
 source_entry.focus()
-root.bind('<Return>', askopenfile)
 
 root.mainloop()

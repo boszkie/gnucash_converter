@@ -4,50 +4,60 @@
 import csv
 from decimal import *
 
-#starting amount
-cum = Decimal('2608.91')
+class rabo2gnucashconverter:
+    #starting amount
+    #cum = Decimal('2608.91')
 
-with open('transactions29082016.txt') as csvFile, open ('gnucashFormatted.csv','w', newline='') as newFile:
-    originalCsv  = csv.reader(csvFile, delimiter=',', quotechar='"')
-    gnucashCsv   = csv.writer(newFile, delimiter=';', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+    def convert(self, source, target, startCum, finishCum):
+        self.startCum = startCum
+        self.finishCum = finishCum
 
-    # headings
-    gnucashCsv.writerow(['date', 'credit', 'debet', 'cumulative', 'message'])
+        self.balance = self.startCum
 
-    # go thru the csv row by row
-    for row in originalCsv:
+        with open(source) as csvFile, open (target,'w', newline='') as newFile:
+            originalCsv  = csv.reader(csvFile, delimiter=',', quotechar='"')
+            gnucashCsv   = csv.writer(newFile, delimiter=';', quotechar='"', quoting=csv.QUOTE_MINIMAL)
 
-        # array to formatted values for each row
-        newrow = []
+            # headings
+            gnucashCsv.writerow(['date', 'credit', 'debet', 'cumulative', 'message'])
 
-        # date
-        # there are two dates - this one seems to be the more accurate one
-        newrow.append(row[8])
+            # go thru the csv row by row
+            for row in originalCsv:
 
-        # amount - credit
-        if row[3] == 'C':
-            newrow.append(row[4])
-            newrow.append('')
+                # array to formatted values for each row
+                newrow = []
 
-            # cumulative amount
-            cum = Decimal(cum) + Decimal(row[4])
-            newrow.append(round(cum, 2))
-        # amount - debet
-        elif row[3] == 'D':
-            newrow.append('')
-            newrow.append(row[4])
+                # date
+                # there are two dates - this one seems to be the more accurate one
+                newrow.append(row[7])
 
-            # cumulative amount
-            cum = Decimal(cum) - Decimal(row[4])
-            newrow.append(round(cum, 2))
+                # amount - credit
+                if row[3] == 'C':
+                    newrow.append(row[4])
+                    newrow.append('')
 
-        # there are multiple columns that may hold texts
-        messages = [row[6], row[7], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18]]
+                    # cumulative amount
+                    self.balance = Decimal(self.balance) + Decimal(row[4])
+                    newrow.append(round(self.balance, 2))
+                # amount - debet
+                elif row[3] == 'D':
+                    newrow.append('')
+                    newrow.append(row[4])
 
-        for message in messages:
-            ' '.join(c for c in messages if c not in ';')
+                    # cumulative amount
+                    self.balance = Decimal(self.balance) - Decimal(row[4])
+                    newrow.append(round(self.balance, 2))
 
-        # join the messages array into one string
-        newrow.append(''.join(s.strip() for s in messages if s.strip()))
+                # there are multiple columns that may hold texts
+                messages = [row[5], row[6], row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18]]
 
-        gnucashCsv.writerow(newrow)
+                for message in messages:
+                    ' '.join(c for c in messages if c not in ';')
+
+                # join the messages array into one string
+                newrow.append(''.join(s.strip() for s in messages if s.strip()))
+
+                gnucashCsv.writerow(newrow)
+
+test = rabo2gnucashconverter()
+test.convert('C:\\home\\2016\\20160601_20160923_home.csv', 'C:\\coding\\python\\test.csv', 123, 1234)
