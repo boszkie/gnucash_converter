@@ -2,7 +2,6 @@ from tkinter import *
 from tkinter import ttk
 from tkinter import filedialog
 from decimal import *
-from FileDialogue import *
 from rabo2gnucashconverter import *
 
 # ask for the source file
@@ -10,22 +9,22 @@ def askopenfile():
     options = {
         'defaultextension': '.csv',
         'filetypes': [('all files', '.*'), ('text files', '.csv')],
-        'initialdir': 'C:\\home',
+        'initialdir': 'C:\\home\\2016',
         'title': 'open the source rabobank export file'
     }
     
     source.set(filedialog.askopenfilename(**options))
 
 # ask for the target directory
-def askdirectory():
+def asksavefile():
     options = {
-        'initialdir': 'C:\\',
-        'mustexist': False,
-        'parent': root,
-        'title': 'folder to save to'
+        'defaultextension': '.csv',
+        'filetypes': [('all files', '.*'), ('text files', '.csv')],
+        'initialdir': 'C:\\coding\\python',
+        'title': 'file to save to'
     }
 
-    target.set(filedialog.askdirectory(**options))
+    target.set(filedialog.asksaveasfilename(**options))
 
 def convert():
     converter = rabo2gnucashconverter()
@@ -54,7 +53,7 @@ ttk.Button(mainframe, text='source file', command=askopenfile).grid(column=3, ro
 
 target_entry = ttk.Entry(mainframe, width=20, textvariable=target)
 target_entry.grid(column=2, row=3, sticky=(W, E))
-ttk.Button(mainframe, text="target file", command=askdirectory).grid(column=3, row=3, sticky=W)
+ttk.Button(mainframe, text="target file", command=asksavefile).grid(column=3, row=3, sticky=W)
 
 startCum_entry = ttk.Entry(mainframe, width=7, textvariable=startCum)
 startCum_entry.grid(column=2, row=4, sticky=(W, E))
