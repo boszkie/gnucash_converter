@@ -9,8 +9,6 @@ class raboWidget(ttk.Frame):
     # manages the user interface
 
     def __init__(self, root):
-        # set properties and setup widget
-
         ttk.Frame.__init__(self, root)
 
         self.source_file = StringVar()
@@ -22,8 +20,6 @@ class raboWidget(ttk.Frame):
         self.buildWidget(root);
 
     def buildWidget(self, root):
-        # build the widget
-
         root.title("Rabobank to GnuCash Converter")
 
         main_widget = ttk.Frame(root, padding="3 3 12 12")
@@ -57,7 +53,6 @@ class raboWidget(ttk.Frame):
         for child in main_widget.winfo_children(): child.grid_configure(padx=5, pady=5)
 
     def askopenfile(self):
-        # ask for the source file
         options = {
             'defaultextension': '.csv',
             'filetypes': [('all files', '.*'), ('text files', '.csv')],
@@ -66,8 +61,6 @@ class raboWidget(ttk.Frame):
         }
 
         filename = filedialog.askopenfilename(**options)
-
-        # validate
 
         self.source_file.set(filename)
 
@@ -81,8 +74,6 @@ class raboWidget(ttk.Frame):
         }
 
         filename = filedialog.asksaveasfilename(**options)
-
-        # validate
 
         self.target_file.set(filename)
 
