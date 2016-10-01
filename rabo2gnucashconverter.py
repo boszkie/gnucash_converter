@@ -59,5 +59,6 @@ class rabo2gnucashconverter:
 
                 gnucashCsv.writerow(newrow)
 
-test = rabo2gnucashconverter()
-test.convert('C:\\home\\2016\\20160601_20160923_home.csv', 'C:\\coding\\python\\test.csv', 123, 1234)
+if __name__ == '__main__':
+    test = rabo2gnucashconverter()
+    test.convert('C:\\home\\2016\\20160601_20160923_home.csv', 'C:\\coding\\python\\test.csv', 123, 1234)

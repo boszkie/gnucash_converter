@@ -85,7 +85,7 @@ class TkFileDialogExample(ttk.Frame):
 
     return filedialog.askdirectory(**self.dir_opt)
 
-if __name__=='__main__':
+if __name__ == '__main__':
   root = Tk()
   TkFileDialogExample(root).pack()
   root.mainloop()
