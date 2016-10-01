@@ -25,7 +25,7 @@ class raboWidget(ttk.Frame):
         self.finalBalance = StringVar()
 
         # wisget messages
-        self.messages = StringVar()
+        self.message = StringVar()
 
         self.buildWidget(root);
 
@@ -40,28 +40,26 @@ class raboWidget(ttk.Frame):
         mainframe.columnconfigure(0, weight=1)
         mainframe.rowconfigure(0, weight=1)
 
+        self.message = ttk.Label(mainframe, text="")
+        self.message.grid(column=1, row=1, sticky=(W, E))
+
         source_entry = ttk.Entry(mainframe, width=20, textvariable=self.source)
-        source_entry.grid(column=2, row=2, sticky=(W, E))
+        source_entry.grid(column=1, row=2, sticky=(W, E))
+        source_entry.focus()
         ttk.Button(mainframe, text='source file', command=self.askopenfile).grid(column=3, row=2)
 
-        target_entry = ttk.Entry(mainframe, width=20, textvariable=self.target)
-        target_entry.grid(column=2, row=3, sticky=(W, E))
+        ttk.Entry(mainframe, width=20, textvariable=self.target).grid(column=2, row=3, sticky=(W, E))
         ttk.Button(mainframe, text="target file", command=self.asksavefile).grid(column=3, row=3, sticky=W)
 
-        initialBalance_entry = ttk.Entry(mainframe, width=7, textvariable=self.initialBalance)
-        initialBalance_entry.grid(column=2, row=4, sticky=(W, E))
+        ttk.Entry(mainframe, width=7, textvariable=self.initialBalance).grid(column=2, row=4, sticky=(W, E))
         ttk.Label(mainframe, text="starting balance").grid(column=3, row=4, sticky=W)
 
-        finalBalance_entry = ttk.Entry(mainframe, width=7, textvariable=self.finalBalance)
-        finalBalance_entry.grid(column=2, row=5, sticky=(W, E))
+        ttk.Entry(mainframe, width=7, textvariable=self.finalBalance).grid(column=2, row=5, sticky=(W, E))
         ttk.Label(mainframe, text="final balance").grid(column=3, row=5, sticky=W)
 
-        ttk.Label(mainframe, textvariable=self.messages).grid(column=2, row=1, sticky=(W, E))
         ttk.Button(mainframe, text="Convert", command=self.convert).grid(column=3, row=7, sticky=W)
 
         for child in mainframe.winfo_children(): child.grid_configure(padx=5, pady=5)
-
-        source_entry.focus()
 
     def askopenfile(self):
         # ask for the source file
@@ -72,7 +70,11 @@ class raboWidget(ttk.Frame):
             'title': 'open the source rabobank export file'
         }
 
-        self.source.set(filedialog.askopenfilename(**options))
+        filename = filedialog.askopenfilename(**options)
+
+        # validate
+
+        self.source.set(filename)
 
     # ask for the target directory
     def asksavefile(self):
@@ -83,12 +85,15 @@ class raboWidget(ttk.Frame):
             'title': 'file to save to'
         }
 
+        # validate
+
         self.target.set(filedialog.asksaveasfilename(**options))
 
     def convert(self):
         converter = rabo2gnucashconverter()
         converter.convert(self.source.get(), self.target.get(), self.initialBalance.get(), self.finalBalance.get())
 
+        self.message['text'] = 'conversion succesful'
 
 
 if __name__ == '__main__':
