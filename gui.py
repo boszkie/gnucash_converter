@@ -9,22 +9,14 @@ class raboWidget(ttk.Frame):
     # manages the user interface
 
     def __init__(self, root):
-        # initialise parent class
+        # set properties and setup widget
+
         ttk.Frame.__init__(self, root)
 
-        # source file to convert
         self.source_file = StringVar()
-
-        # file to save convertion
         self.target_file = StringVar()
-
-        # starting balance
         self.initial_balance = StringVar()
-
-        # final balance
         self.final_balance = StringVar()
-
-        # wisget messages
         self.message = StringVar()
 
         self.buildWidget(root);
@@ -34,7 +26,6 @@ class raboWidget(ttk.Frame):
 
         root.title("Rabobank to GnuCash Converter")
 
-        # basic positioning and layout stuff
         main_widget = ttk.Frame(root, padding="3 3 12 12")
         main_widget.grid(column=0, row=0, sticky=(N, W, E, S))
         main_widget.columnconfigure(0, weight=1)
@@ -46,15 +37,19 @@ class raboWidget(ttk.Frame):
         source_file_entry = ttk.Entry(main_widget, width=20, textvariable=self.source_file)
         source_file_entry.grid(column=1, row=2, sticky=(W, E))
         source_file_entry.focus()
+
         ttk.Button(main_widget, text='source file', command=self.askopenfile).grid(column=2, row=2)
 
         ttk.Entry(main_widget, width=20, textvariable=self.target_file).grid(column=1, row=3, sticky=(W, E))
+
         ttk.Button(main_widget, text="target file", command=self.asksavefile).grid(column=2, row=3)
 
         ttk.Entry(main_widget, width=7, textvariable=self.initial_balance).grid(column=1, row=4, sticky=E)
+
         ttk.Label(main_widget, text="starting balance").grid(column=2, row=4, sticky=(W,E))
 
         ttk.Entry(main_widget, width=7, textvariable=self.final_balance).grid(column=1, row=5, sticky=E)
+
         ttk.Label(main_widget, text="final balance").grid(column=2, row=5, sticky=(W,E))
 
         ttk.Button(main_widget, text="Convert", command=self.convert).grid(column=2, row=6)
@@ -85,9 +80,11 @@ class raboWidget(ttk.Frame):
             'title': 'file to save to'
         }
 
+        filename = filedialog.asksaveasfilename(**options)
+
         # validate
 
-        self.target_file.set(filedialog.asksaveasfilename(**options))
+        self.target_file.set(filename)
 
     def convert(self):
         converter = rabo2gnuCash()
