@@ -2,7 +2,6 @@ from tkinter import *
 from tkinter import ttk
 from tkinter import filedialog
 from tkinter import constants
-from decimal import *
 from rabo2gnuCashConverter import *
 
 class rabo2gnuCashWidget(ttk.Frame):
