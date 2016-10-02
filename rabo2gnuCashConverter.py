@@ -1,5 +1,7 @@
 import csv
+import datetime
 from decimal import *
+
 
 class rabo2gnuCashConverter:
     # rabobank csv to gnucash csv import conversion
@@ -28,7 +30,7 @@ class rabo2gnuCashConverter:
 
         # date
         # there are two dates - this one seems to be the more accurate one
-        new_row.append(row[7])
+        new_row.append(datetime.datetime.strptime(row[2], "%Y%m%d").strftime("%d-%m-%Y"))
 
         # amount - credit
         if row[3] == 'C':
