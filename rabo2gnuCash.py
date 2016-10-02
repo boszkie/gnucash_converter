@@ -22,6 +22,8 @@ class rabo2gnuCash:
                 gnucashCsv.writerow(self.newRow(row, counter))
 
     def newRow(self, row, counter):
+        # convert the input data into a csv row
+
         new_row = []
 
         # date
@@ -33,34 +35,40 @@ class rabo2gnuCash:
             new_row.append(row[4])
             new_row.append('')
 
-            # cumulative amount
-            if counter == 0:
-                new_row.append(self.balance)
-            else:
-                self.balance = Decimal(self.balance) + Decimal(row[4])
-                new_row.append(round(self.balance, 2))
+            new_row.append(self.setBalance(Decimal(row[4]), "credit", counter))
         # amount - debet
         elif row[3] == 'D':
             new_row.append('')
             new_row.append(row[4])
 
-            # cumulative amount
-            if counter == 0:
-                new_row.append(self.balance)
-            else:
-                self.balance = Decimal(self.balance) - Decimal(row[4])
-                new_row.append(round(self.balance, 2))
+            new_row.append(self.setBalance(Decimal(row[4]), "debet", counter))
 
-        # there are multiple columns that may hold texts
+        # join the messages array into one string
+        new_row.append(self.setMessage(row))
+
+        return new_row
+
+    def setBalance(self, amount, type, counter):
+        # calculate the current balance
+
+        if counter == 0:
+            return self.balance
+        else:
+            if type == "credit":
+                self.balance = Decimal(self.balance) + amount
+            elif type == "debet":
+                self.balance = Decimal(self.balance) - amount
+        return round(self.balance, 2)
+
+    def setMessage(self, row):
+        # get the message from all possible rows
+
         messages = [row[5], row[6], row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18]]
 
         for message in messages:
             ' '.join(c for c in messages if c not in ';')
 
-        # join the messages array into one string
-        new_row.append(''.join(s.strip() for s in messages if s.strip()))
-
-        return new_row
+        return ' '.join(s.strip() for s in messages if s.strip())
 
 if __name__ == '__main__':
     test = rabo2gnuCash()
