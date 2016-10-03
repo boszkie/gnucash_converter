@@ -68,7 +68,7 @@ class rabo2gnuCashWidget(ttk.Frame):
     def asksavefile(self):
         options = {
             'defaultextension': '.csv',
-            'filetypes': [('all files', '.*'), ('text files', '.csv')],
+            'filetypes': [('text files', '.csv')],
             'initialdir': 'C:\\coding\\python',
             'title': 'file to save to'
         }
