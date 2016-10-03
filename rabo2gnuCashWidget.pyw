@@ -49,6 +49,8 @@ class rabo2gnuCashWidget(ttk.Frame):
 
         ttk.Button(main_widget, text="Convert", command=self.convert).grid(column=2, row=6)
 
+        ttk.Button(main_widget, text="Close", command=self.stop).grid(column=1, row=6)
+
         for child in main_widget.winfo_children(): child.grid_configure(padx=5, pady=5)
 
     def askopenfile(self):
@@ -82,6 +84,8 @@ class rabo2gnuCashWidget(ttk.Frame):
 
         self.message['text'] = 'conversion succesful'
 
+    def stop(self):
+        root.destroy()
 
 if __name__ == '__main__':
   root = Tk()

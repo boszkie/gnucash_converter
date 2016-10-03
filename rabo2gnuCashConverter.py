@@ -30,17 +30,17 @@ class rabo2gnuCashConverter:
 
         # date
         # there are two dates - this one seems to be the more accurate one
-        new_row.append(datetime.datetime.strptime(row[2], "%Y%m%d").strftime("%d-%m-%Y"))
+        new_row.append(datetime.datetime.strptime(row[2], "%Y%m%d").strftime("%Y-%m-%d"))
 
         # amount - credit
         if row[3] == 'C':
             new_row.append(row[4])
-            new_row.append('')
+            new_row.append(0)
 
             new_row.append(self.setBalance(Decimal(row[4]), "credit", counter))
         # amount - debet
         elif row[3] == 'D':
-            new_row.append('')
+            new_row.append(0)
             new_row.append(row[4])
 
             new_row.append(self.setBalance(Decimal(row[4]), "debet", counter))
