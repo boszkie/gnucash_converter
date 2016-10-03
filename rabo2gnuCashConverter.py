@@ -45,7 +45,6 @@ class rabo2gnuCashConverter:
 
             new_row.append(self.setBalance(Decimal(row[4]), "debet", counter))
 
-        # join the messages array into one string
         new_row.append(self.setMessage(row))
 
         return new_row
@@ -63,7 +62,7 @@ class rabo2gnuCashConverter:
         return round(self.balance, 2)
 
     def setMessage(self, row):
-        # get the message from all possible rows
+        # collect the message from all possible rows
 
         messages = [row[5], row[6], row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18]]
 
