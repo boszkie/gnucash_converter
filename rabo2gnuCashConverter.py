@@ -6,10 +6,11 @@ from decimal import *
 class rabo2gnuCashConverter:
     # rabobank csv to gnucash csv import conversion
 
-    def convert(self, source, target, initial_balance, final_balance):
+    def convert(self, source, target, bank, initial_balance, final_balance):
+        self.bank            = bank 
         self.initial_balance = initial_balance
-        self.final_balance = final_balance
-        self.balance = self.initial_balance
+        self.final_balance   = final_balance
+        self.balance         = self.initial_balance
 
         with open(source) as csvFile, open (target,'w', newline='') as newFile:
 
