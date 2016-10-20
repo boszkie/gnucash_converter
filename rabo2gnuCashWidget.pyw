@@ -10,21 +10,19 @@ class rabo2gnuCashWidget(ttk.Frame):
     def __init__(self, root):
         ttk.Frame.__init__(self, root)
 
-        self.source_file = StringVar()
-        self.target_file = StringVar()
+        self.source_file     = StringVar()
+        self.target_file     = StringVar()
+        self.bank            = StringVar()
         self.initial_balance = StringVar()
-        self.final_balance = StringVar()
-        self.message = StringVar()
+        self.final_balance   = StringVar()
+        self.message         = StringVar()
+
+        root.title("Rabobank to GnuCash Converter")
 
         self.buildWidget(root);
 
     def buildWidget(self, root):
-        root.title("Rabobank to GnuCash Converter")
-
-        main_widget = ttk.Frame(root, padding="3 3 12 12")
-        main_widget.grid(column=0, row=0, sticky=(N, W, E, S))
-        main_widget.columnconfigure(0, weight=1)
-        main_widget.rowconfigure(0, weight=1)
+        main_widget = self.buildMainWidget(root);
 
         self.message = ttk.Label(main_widget, text="")
         self.message.grid(column=1, row=1, sticky=(W, E))
@@ -34,24 +32,27 @@ class rabo2gnuCashWidget(ttk.Frame):
         source_file_entry.focus()
 
         ttk.Button(main_widget, text='source file', command=self.askopenfile).grid(column=2, row=2)
-
         ttk.Entry(main_widget, width=20, textvariable=self.target_file).grid(column=1, row=3, sticky=(W, E))
-
         ttk.Button(main_widget, text="target file", command=self.asksavefile).grid(column=2, row=3)
-
-        ttk.Entry(main_widget, width=7, textvariable=self.initial_balance).grid(column=1, row=4, sticky=E)
-
-        ttk.Label(main_widget, text="starting balance").grid(column=2, row=4, sticky=(W,E))
-
-        ttk.Entry(main_widget, width=7, textvariable=self.final_balance).grid(column=1, row=5, sticky=E)
-
-        ttk.Label(main_widget, text="final balance").grid(column=2, row=5, sticky=(W,E))
-
-        ttk.Button(main_widget, text="Convert", command=self.convert).grid(column=2, row=6)
-
-        ttk.Button(main_widget, text="Close", command=self.stop).grid(column=1, row=6)
+        lst1 = ['rabobank','ing']
+        ttk.OptionMenu(main_widget,self.bank,*lst1).grid(column=1, row=4)
+        ttk.Label(main_widget, text="bank").grid(column=2, row=4, sticky=(W,E))
+        ttk.Entry(main_widget, width=7, textvariable=self.initial_balance).grid(column=1, row=5, sticky=E)
+        ttk.Label(main_widget, text="starting balance").grid(column=2, row=5, sticky=(W,E))
+        ttk.Entry(main_widget, width=7, textvariable=self.final_balance).grid(column=1, row=6, sticky=E)
+        ttk.Label(main_widget, text="final balance").grid(column=2, row=6, sticky=(W,E))
+        ttk.Button(main_widget, text="Convert", command=self.convert).grid(column=2, row=7)
+        ttk.Button(main_widget, text="Close", command=self.stop).grid(column=1, row=7)
 
         for child in main_widget.winfo_children(): child.grid_configure(padx=5, pady=5)
+
+    def buildMainWidget(self, root):
+        main_widget = ttk.Frame(root, padding="3 3 12 12")
+        main_widget.grid(column=0, row=0, sticky=(N, W, E, S))
+        main_widget.columnconfigure(0, weight=1)
+        main_widget.rowconfigure(0, weight=1)
+
+        return main_widget
 
     def askopenfile(self):
         options = {
@@ -79,9 +80,9 @@ class rabo2gnuCashWidget(ttk.Frame):
 
     def convert(self):
         converter = rabo2gnuCashConverter()
-        converter.convert(self.source_file.get(), self.target_file.get(), self.initial_balance.get(), self.final_balance.get())
+        converter.convert(self.source_file.get(), self.target_file.get(), self.bank.get(), self.initial_balance.get(), self.final_balance.get())
 
-        self.message['text'] = 'conversion succesful'
+        self.message['text'] = 'conversion succesfull'
 
     def stop(self):
         root.destroy()
