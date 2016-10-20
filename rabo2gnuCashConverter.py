@@ -13,20 +13,43 @@ class rabo2gnuCashConverter:
         self.balance         = self.initial_balance
 
         with open(source) as csvFile, open (target,'w', newline='') as newFile:
+            gnucashCsv = csv.writer(newFile, delimiter=';', quotechar='"', quoting=csv.QUOTE_MINIMAL)
 
-            originalCsv  = csv.reader(csvFile, delimiter=',', quotechar='"')
-            gnucashCsv   = csv.writer(newFile, delimiter=';', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+            rows = rabobankConverter(csvFile)
 
+            while rows.nextRow():
+                gnucashCsv.writerow(rows.getRow())
+
+class rabobankConverter:
+    # strategy for rabobank csvs
+
+    def __init__(self, csvFile):
             # headings
-            gnucashCsv.writerow(['date', 'credit', 'debet', 'cumulative', 'message'])
+        self.pointer     = 0
+        self.originalCsv = csv.reader(csvFile, delimiter=',', quotechar='"')
+        self.rowcount    = 0
+        self.rows        = []
 
-            for counter, row in enumerate(originalCsv):
+        for row in enumerate(self.originalCsv):
+            self.rows.append(row)
 
-                gnucashCsv.writerow(self.newRow(row, counter))
+        self.rowcount = len(self.rows)
 
-    def newRow(self, row, counter):
-        # convert the input data into a csv row
+    def nextRow(self):
+        if self.pointer + 1 >= self.rowcount:
+            return False
 
+        return True
+
+    def getRow(self):
+        return ['date', 'credit', 'debet', 'cumulative', 'message']
+
+        return newRow()
+
+    def newRow(self):
+        # return a row from the csv
+
+        row = self.originalCsv.next
         new_row = []
 
         # date
@@ -71,3 +94,4 @@ class rabo2gnuCashConverter:
             ' '.join(c for c in messages if c not in ';')
 
         return ' '.join(s.strip() for s in messages if s.strip())
+
