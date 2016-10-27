@@ -19,10 +19,10 @@ class rabo2gnuCashWidget(ttk.Frame):
 
         root.title("Rabobank to GnuCash Converter")
 
-        self.buildWidget(root);
+        self.buildWidget(root)
 
     def buildWidget(self, root):
-        main_widget = self.buildMainWidget(root);
+        main_widget = self.buildMainWidget(root)
 
         self.message = ttk.Label(main_widget, text="")
         self.message.grid(column=1, row=1, sticky=(W, E))

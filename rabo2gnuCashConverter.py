@@ -12,26 +12,28 @@ class rabo2gnuCashConverter:
         self.final_balance   = final_balance
         self.balance         = self.initial_balance
 
-        with open(source) as csvFile, open (target,'w', newline='') as newFile:
-            gnucashCsv = csv.writer(newFile, delimiter=';', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+        with open(source) as csvFile, open (target, 'w', newline='') as newFile:
 
-            rows = rabobankConverter(csvFile)
+            rows = rabobankConverter(csvFile, csv.reader(csvFile, delimiter=',', quotechar='"'))
+
+            gnucashCsv = csv.writer(newFile, delimiter=';', quotechar='"', quoting=csv.QUOTE_MINIMAL)
 
             while rows.nextRow():
                 gnucashCsv.writerow(rows.getRow())
 
+
+
 class rabobankConverter:
     # strategy for rabobank csvs
 
-    def __init__(self, csvFile):
+    def __init__(self, csvFile, reader):
             # headings
         self.pointer     = 0
-        self.originalCsv = csv.reader(csvFile, delimiter=',', quotechar='"')
         self.rowcount    = 0
         self.rows        = []
 
-        for row in enumerate(self.originalCsv):
-            self.rows.append(row)
+        for counter, row in enumerate(reader):
+            self.rows.append(self.newRow(row, counter))
 
         self.rowcount = len(self.rows)
 
@@ -42,14 +44,14 @@ class rabobankConverter:
         return True
 
     def getRow(self):
-        return ['date', 'credit', 'debet', 'cumulative', 'message']
+        if self.pointer == 1:
+            return ['date', 'credit', 'debet', 'cumulative', 'message']
 
-        return newRow()
+        return self.rows[self.pointer]
 
-    def newRow(self):
+    def newRow(self, row, counter):
         # return a row from the csv
 
-        row = self.originalCsv.next
         new_row = []
 
         # date
@@ -95,3 +97,6 @@ class rabobankConverter:
 
         return ' '.join(s.strip() for s in messages if s.strip())
 
+if __name__ == '__main__':
+    converter = rabo2gnuCashConverter()
+    converter.convert("C:/home/2016/20160601_20160923_home.csv", "C:/coding/python/fred1.csv", "rabobank", 123, 345)
