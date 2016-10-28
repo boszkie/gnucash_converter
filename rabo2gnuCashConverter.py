@@ -7,19 +7,23 @@ class rabo2gnuCashConverter:
     # rabobank csv to gnucash csv import conversion
 
     def convert(self, source, target, bank, initial_balance, final_balance):
-        self.bank            = bank 
-        self.initial_balance = initial_balance
-        self.final_balance   = final_balance
-        self.balance         = self.initial_balance
+        
+        self.bank = bank
 
         with open(source) as csvFile, open (target, 'w', newline='') as newFile:
 
-            rows = rabobankConverter(csvFile, csv.reader(csvFile, delimiter=',', quotechar='"'))
+            converter = rabobankConverter(csvFile, csv.reader(csvFile, delimiter=',', quotechar='"'))
+            converter.setInitialBalance(initial_balance)
+            converter.setFinalBalance(final_balance)
+            converter.setBalance(initial_balance)
+            converter.convert()
 
             gnucashCsv = csv.writer(newFile, delimiter=';', quotechar='"', quoting=csv.QUOTE_MINIMAL)
 
-            while rows.nextRow():
-                gnucashCsv.writerow(rows.getRow())
+            gnucashCsv.writerow(['date', 'credit', 'debet', 'cumulative', 'message'])
+            
+            while converter.nextRow():
+                gnucashCsv.writerow(converter.getRow())
 
 
 
@@ -28,26 +32,37 @@ class rabobankConverter:
 
     def __init__(self, csvFile, reader):
             # headings
+        self.reader    = reader
         self.pointer     = 0
         self.rowcount    = 0
         self.rows        = []
 
-        for counter, row in enumerate(reader):
+    def convert(self):
+        for counter, row in enumerate(self.reader):
             self.rows.append(self.newRow(row, counter))
 
         self.rowcount = len(self.rows)
 
+    def setInitialBalance(self, initial_balance):
+        self.initial_balance = initial_balance
+
+    def setFinalBalance(self, final_balance):
+        self.final_balance = final_balance
+    
+    def setBalance(self, balance):
+        self.balance = balance
+
     def nextRow(self):
-        if self.pointer + 1 >= self.rowcount:
+
+        if self.pointer >= self.rowcount:
             return False
 
         return True
 
     def getRow(self):
-        if self.pointer == 1:
-            return ['date', 'credit', 'debet', 'cumulative', 'message']
-
-        return self.rows[self.pointer]
+        self.pointer += 1
+        print(self.pointer)
+        return self.rows[self.pointer - 1]
 
     def newRow(self, row, counter):
         # return a row from the csv
@@ -63,19 +78,19 @@ class rabobankConverter:
             new_row.append(row[4])
             new_row.append(0)
 
-            new_row.append(self.setBalance(Decimal(row[4]), "credit", counter))
+            new_row.append(self.calculateBalance(Decimal(row[4]), "credit", counter))
         # amount - debet
         elif row[3] == 'D':
             new_row.append(0)
             new_row.append(row[4])
 
-            new_row.append(self.setBalance(Decimal(row[4]), "debet", counter))
+            new_row.append(self.calculateBalance(Decimal(row[4]), "debet", counter))
 
         new_row.append(self.setMessage(row))
 
         return new_row
 
-    def setBalance(self, amount, type, counter):
+    def calculateBalance(self, amount, type, counter):
         # calculate the current balance
 
         if counter == 0:
@@ -99,4 +114,4 @@ class rabobankConverter:
 
 if __name__ == '__main__':
     converter = rabo2gnuCashConverter()
-    converter.convert("C:/home/2016/20160601_20160923_home.csv", "C:/coding/python/fred1.csv", "rabobank", 123, 345)
+    converter.convert("C:/home/2016/20160601_20160923_home.csv", "C:/coding/python/fred1.csv", "rabobank", 2608.91, 345)
