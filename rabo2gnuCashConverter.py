@@ -4,7 +4,8 @@ from decimal import *
 
 
 class rabo2gnuCashConverter:
-    # rabobank csv to gnucash csv import conversion
+    # csv to gnucash csv import conversion
+    # uses the rabobankConverter class to do the conversion
 
     def convert(self, source, target, bank, initial_balance, final_balance):
         
@@ -61,7 +62,7 @@ class rabobankConverter:
 
     def getRow(self):
         self.pointer += 1
-        print(self.pointer)
+
         return self.rows[self.pointer - 1]
 
     def newRow(self, row, counter):
