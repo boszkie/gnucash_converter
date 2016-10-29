@@ -18,6 +18,7 @@ class rabo2gnuCashConverter:
 
         with open(source) as csvFile, open (target, 'w', newline='') as newFile:
 
+            
             converter = rabobankConverter(csv.reader(csvFile, delimiter=',', quotechar='"'))
             converter.setInitialBalance(initial_balance)
             converter.setFinalBalance(final_balance)
@@ -67,7 +68,7 @@ class abstractConverter:
         '''
         set the initial balance, for the balance column
         '''
-        self.balance = balance
+        self.balance = initial_balance
 
     def setFinalBalance(self, final_balance):
         '''
@@ -93,6 +94,13 @@ class abstractConverter:
 
         return self.rows[self.pointer - 1]
 
+    def newRow(self, row, counter):
+        '''
+        abstract method
+        create a new row from an import csv row
+        '''
+        raise NotImplementedError('interface / abstract class!')
+
 
 class rabobankConverter(abstractConverter):
     '''
@@ -101,7 +109,7 @@ class rabobankConverter(abstractConverter):
 
     def newRow(self, row, counter):
         '''
-        return new row from the import csv
+        create a new row from an import csv row
         '''
 
         new_row = []
@@ -156,7 +164,7 @@ class rabobankConverter(abstractConverter):
 
 class ingConverter(abstractConverter):
     '''
-    strategy for ing csvs
+    create a new row from an import csv row
     '''
 
     def newRow(self, row, counter):
