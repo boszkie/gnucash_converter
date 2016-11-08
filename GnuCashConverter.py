@@ -3,7 +3,7 @@ import datetime
 from decimal import *
 
 
-class rabo2gnuCashConverter:
+class GnuCashConverter:
     '''
     csv to gnucash csv import conversion
     uses the rabobankConverter strategy classes to do the conversion
@@ -235,7 +235,7 @@ class ingConverter(abstractConverter):
 
 
 if __name__ == '__main__':
-    converter = rabo2gnuCashConverter()
+    converter = GnuCashConverter()
     converter.setTesting()
     converter.convert(
 #            "C:/home/2016/NL16INGB0007098871_01-06-2016_10-10-2016.csv",

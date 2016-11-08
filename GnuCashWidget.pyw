@@ -1,10 +1,9 @@
 from tkinter import *
 from tkinter import ttk
 from tkinter import filedialog
-from tkinter import constants
-from rabo2gnuCashConverter import *
+from GnuCashConverter import *
 
-class rabo2gnuCashWidget(ttk.Frame):
+class GnuCashWidget(ttk.Frame):
     # manages the user interface
 
     def __init__(self, root):
@@ -17,12 +16,12 @@ class rabo2gnuCashWidget(ttk.Frame):
         self.final_balance   = StringVar()
         self.message         = StringVar()
 
-        root.title("Rabobank to GnuCash Converter")
+        root.title("GnuCash Converter")
 
-        self.buildWidget(root)
+        self.build_widget(root)
 
-    def buildWidget(self, root):
-        main_widget = self.buildMainWidget(root)
+    def build_widget(self, root):
+        main_widget = self.build_main_widget(root)
 
         self.message = ttk.Label(main_widget, text="")
         self.message.grid(column=1, row=1, sticky=(W, E))
@@ -46,7 +45,7 @@ class rabo2gnuCashWidget(ttk.Frame):
 
         for child in main_widget.winfo_children(): child.grid_configure(padx=5, pady=5)
 
-    def buildMainWidget(self, root):
+    def build_main_widget(self, root):
         main_widget = ttk.Frame(root, padding="3 3 12 12")
         main_widget.grid(column=0, row=0, sticky=(N, W, E, S))
         main_widget.columnconfigure(0, weight=1)
@@ -89,5 +88,5 @@ class rabo2gnuCashWidget(ttk.Frame):
 
 if __name__ == '__main__':
   root = Tk()
-  rabo2gnuCashWidget(root)
+  GnuCashWidget(root)
   root.mainloop()
