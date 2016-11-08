@@ -16,23 +16,30 @@ class rabo2gnuCashConverter:
         manages the conversion
         '''
 
-        with open(source) as csvFile, open (target, 'w', newline='') as newFile:
+        with open(source) as csvFile:
+            with open (target, 'w', newline='') as newFile:
 
-            
-            converter = rabobankConverter(csv.reader(csvFile, delimiter=',', quotechar='"'))
-            converter.setInitialBalance(initial_balance)
-            converter.setFinalBalance(final_balance)
-            converter.convert()
-
-            gnucashCsv = csv.writer(newFile, delimiter=';', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-
-            gnucashCsv.writerow(['date', 'credit', 'debet', 'cumulative', 'message'])
-            
-            while converter.nextRow():
-                if (self.testing):
-                    print(converter.getRow())
+                if bank == 'rabobank':
+                    converter = rabobankConverter(csv.reader(csvFile, delimiter=',', quotechar='"'))
+                elif bank == 'ing':
+                    converter = ingConverter(csv.reader(csvFile, delimiter=';', quotechar='"'))
                 else:
-                    gnucashCsv.writerow(converter.getRow())
+                    return False
+
+                converter.setInitialBalance(initial_balance)
+                converter.setFinalBalance(final_balance)
+                converter.convert()
+
+                gnucashCsv = csv.writer(newFile, delimiter=';', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+
+                gnucashCsv.writerow(['date', 'credit', 'debet', 'cumulative', 'message'])
+
+                # converter class is iterable
+                while converter.nextRow():
+                    if (self.testing):
+                        print(converter.getRow())
+                    else:
+                        gnucashCsv.writerow(converter.getRow())
 
     def setTesting(self):
         '''
@@ -60,7 +67,9 @@ class abstractConverter:
         extract data from the import csv into row array
         '''
         for counter, row in enumerate(self.reader):
-            self.rows.append(self.newRow(row, counter))
+            new_row = self.newRow(row, counter)
+            if new_row:
+                self.rows.append(new_row)
 
         self.rowcount = len(self.rows)
 
@@ -157,9 +166,9 @@ class rabobankConverter(abstractConverter):
         messages = [row[5], row[6], row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18]]
 
         for message in messages:
-            ' '.join(c for c in messages if c not in ';')
+            ' '.join(c for c in message if c not in ';')
 
-        return ' '.join(s.strip() for s in messages if s.strip())
+        return ' '.join(s.strip() for s in message if s.strip())
 
 
 class ingConverter(abstractConverter):
@@ -172,24 +181,27 @@ class ingConverter(abstractConverter):
         return new row from the import csv
         '''
 
+        # skip the title row
+        if counter == 0:
+            return False
+
         new_row = []
 
         # date
-        # there are two dates - this one seems to be the more accurate one
-        new_row.append(datetime.datetime.strptime(row[2], "%Y%m%d").strftime("%Y-%m-%d"))
+        new_row.append(datetime.datetime.strptime(row[1], "%Y%m%d").strftime("%Y-%m-%d"))
 
         # amount - credit
-        if row[3] == 'C':
-            new_row.append(row[4])
+        if row[6] == 'Bij':
+            new_row.append(row[7].replace(",", "."))
             new_row.append(0)
 
-            new_row.append(self.calculateBalance(Decimal(row[4]), "credit", counter))
+            new_row.append(self.calculateBalance(Decimal(row[7].replace(",", ".")), "credit", counter))
         # amount - debet
-        elif row[3] == 'D':
+        elif row[6] == 'Af':
             new_row.append(0)
-            new_row.append(row[4])
+            new_row.append(row[7].replace(",", "."))
 
-            new_row.append(self.calculateBalance(Decimal(row[4]), "debet", counter))
+            new_row.append(self.calculateBalance(Decimal(row[7].replace(",", ".")), "debet", counter))
 
         new_row.append(self.setMessage(row))
 
@@ -207,22 +219,29 @@ class ingConverter(abstractConverter):
                 self.balance = Decimal(self.balance) + amount
             elif type == "debet":
                 self.balance = Decimal(self.balance) - amount
-        return round(self.balance, 2)
+        return str(round(self.balance, 2))
 
     def setMessage(self, row):
         '''
         collect the message from all possible rows
         '''
+        message = ''
+        # [row[2], row[4], row[9], row[10], row[11], row[12]]
+        for id, msg in enumerate(row):
+            if (id == 2 or id == 4 or id == 9 or id == 10 or id == 11 or id == 12):
+                message = message + ' ' + msg.strip()
 
-        messages = [row[5], row[6], row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18]]
+        ''.join(c for c in message if c not in ';')
 
-        for message in messages:
-            ' '.join(c for c in messages if c not in ';')
-
-        return ' '.join(s.strip() for s in messages if s.strip())
+        return message
 
 
 if __name__ == '__main__':
     converter = rabo2gnuCashConverter()
     converter.setTesting()
-    converter.convert("C:/home/2016/20160601_20160923_home.csv", "C:/coding/python/fred1.csv", "rabobank", 2608.91, 345)
+    converter.convert(
+            "C:/home/2016/NL16INGB0007098871_01-06-2016_10-10-2016.csv",
+            "C:/coding/python/fred1.csv", 
+            "ing", 
+            2160.86, 
+            345)
