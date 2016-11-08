@@ -156,7 +156,8 @@ class rabobankConverter(abstractConverter):
                 self.balance = Decimal(self.balance) + amount
             elif type == "debet":
                 self.balance = Decimal(self.balance) - amount
-        return round(self.balance, 2)
+
+        return str(round(self.balance, 2))
 
     def setMessage(self, row):
         '''
@@ -165,10 +166,7 @@ class rabobankConverter(abstractConverter):
 
         messages = [row[5], row[6], row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18]]
 
-        for message in messages:
-            ' '.join(c for c in message if c not in ';')
-
-        return ' '.join(s.strip() for s in message if s.strip())
+        return ' '.join(s.strip() for s in messages if s.strip())
 
 
 class ingConverter(abstractConverter):
@@ -219,6 +217,7 @@ class ingConverter(abstractConverter):
                 self.balance = Decimal(self.balance) + amount
             elif type == "debet":
                 self.balance = Decimal(self.balance) - amount
+
         return str(round(self.balance, 2))
 
     def setMessage(self, row):
@@ -239,8 +238,13 @@ if __name__ == '__main__':
     converter = rabo2gnuCashConverter()
     converter.setTesting()
     converter.convert(
-            "C:/home/2016/NL16INGB0007098871_01-06-2016_10-10-2016.csv",
-            "C:/coding/python/fred1.csv", 
-            "ing", 
-            2160.86, 
+#            "C:/home/2016/NL16INGB0007098871_01-06-2016_10-10-2016.csv",
+#            "C:/coding/python/fred1.csv", 
+#            "ing", 
+#            2160.86, 
+#            345)
+            "C:/home/2016/20160601_20160923_home.csv",
+            "C:/coding/python/fred1.csv",
+            "rabobank",
+            2608.91,
             345)
