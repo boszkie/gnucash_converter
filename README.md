@@ -1,14 +1,14 @@
-# rabo2gnucash
+# Gnucash Converter
 
-python script to convert rabobank (nl) csv format to gnuCash csv import format
+python script to convert rabobank and ING (nl) csv format to gnuCash csv import format
 
-python script om rabobank csv om te zetten naar gnuCash import formaat
+python script om rabobank en ING csv om te zetten naar gnuCash import formaat
 
 # install
 
-You need to have python 3 installed. If so, just download the files and double click rabo2gnuCashWidget
+You need to have python 3 installed. If so, just download the files and double click GnuCashWidget
 
-Als je python 3 op je computer hebt, download de bestanden en klik op rabo2gnuCashWidget
+Zorg dat je python 3 op je computer hebt, download de bestanden en klik op GnuCashWidget
 
 # validation
 
