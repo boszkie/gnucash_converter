@@ -225,15 +225,14 @@ class ingConverter(abstractConverter):
         '''
         collect the message from all possible rows
         '''
-        message = ''
-        # [row[2], row[4], row[9], row[10], row[11], row[12]]
+
+        message = []
+
         for id, msg in enumerate(row):
             if (id == 2 or id == 4 or id == 9 or id == 10 or id == 11 or id == 12):
-                message = message + ' ' + msg.strip()
+                message.append(msg.strip())
 
-        ''.join(c for c in message if c not in ';')
-
-        return message
+        return ''.join(c for c in message)
 
 
 if __name__ == '__main__':
