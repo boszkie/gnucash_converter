@@ -370,6 +370,18 @@ class ingConverter(abstractConverter):
 
         return ''.join(c for c in message)
 
+def parse_amount(amount):
+    # type: (str) -> Decimal
+    '''
+    Turn the amount as string into a decimal
+    @TODO Replace with implementation that uses locale
+    '''
+
+    # Replace comma delimiter to point delimiter
+    amount_point_delimiter = amount.replace(",", ".")
+    amount_point_delimiter = amount_point_delimiter.replace(".", "", amount_point_delimiter.count(".") -1)
+
+    return Decimal(amount_point_delimiter)
 
 def parseAmount(amount, amountSeperator):
     '''
