@@ -141,34 +141,35 @@ class rabobankConverter(abstractConverter):
                 Description,
             ]
         '''
+        rabobankCsvDecimalSeperator = ','
 
         # skip the title row
         if counter == 0:
             return False
 
-        new_row = []
+        newRow = []
 
         # date
-        new_row.append(row[4])
+        newRow.append(row[4])
 
-        amount = parse_amount(row[6]).copy_abs()
+        amount = parseAmount(row[6], rabobankCsvDecimalSeperator).copy_abs()
 
         # amount - credit
         if amount >= 0:
-            new_row.append(amount)
-            new_row.append(0)
+            newRow.append(amount)
+            newRow.append(0)
 
         # amount - debet
         else:
-            new_row.append(0)
-            new_row.append(amount)
+            newRow.append(0)
+            newRow.append(amount)
 
         # Balance
-        new_row.append(parse_amount(row[7]))
+        newRow.append(parseAmount(row[7], rabobankCsvDecimalSeperator))
 
-        new_row.append(self.setMessage(row))
+        newRow.append(self.setMessage(row))
 
-        return new_row
+        return newRow
 
     def calculateBalance(self, amount, type, counter):
         '''
@@ -329,18 +330,38 @@ class ingConverter(abstractConverter):
 
         return ''.join(c for c in message)
 
-def parse_amount(amount):
-    # type: (str) -> Decimal
+
+def parseAmount(amount, amountSeperator):
     '''
-    Turn the amount as string into a decimal
-    @TODO Replace with implementation that uses locale
+    Turn the amount as string into a decimal with the correct decimal seperator.
+    It uses the system locale to do this.
+
+    Return amount as Decimal if successful or None if not successful
     '''
 
-    # Replace comma delimiter to point delimiter
-    amount_point_delimiter = amount.replace(",", ".")
-    amount_point_delimiter = amount_point_delimiter.replace(".", "", amount_point_delimiter.count(".") -1)
+    localeSeperator = locale.localeconv()['decimal_point']
+    amountDecimal = None
 
-    return Decimal(amount_point_delimiter)
+    if amountSeperator == localeSeperator:
+        amountDecimal = Decimal(amount)
+
+    # Replace comma seperator to point seperator
+    if amountSeperator == ',':
+        amountPointSeperator = amount.replace(",", ".")
+        amountPointSeperator = amountPointSeperator.replace(
+            ".", "", amountPointSeperator.count(".")-1)
+
+        amountDecimal = Decimal(amountPointSeperator)
+
+    # Replace point seperator to point seperator
+    if amountSeperator == '.':
+        amountCommaSeperator = amount.replace(".", ",")
+        amountCommaSeperator = amountCommaSeperator.replace(
+            ",", "", amountCommaSeperator.count(","-1))
+
+        amountDecimal = Decimal(amountCommaSeperator)
+
+    return amountDecimal
 
 if __name__ == '__main__':
     converter = GnuCashConverter()
