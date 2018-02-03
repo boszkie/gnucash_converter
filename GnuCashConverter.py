@@ -178,7 +178,6 @@ class rabobankConverter(abstractConverter):
                 Description,
             ]
         '''
-  
         rabobankCsvDecimalSeperator = ','
 
         # skip the title row
@@ -370,18 +369,38 @@ class ingConverter(abstractConverter):
 
         return ''.join(c for c in message)
 
-def parse_amount(amount):
-    # type: (str) -> Decimal
+
+def parseAmount(amount, amountSeperator):
     '''
-    Turn the amount as string into a decimal
-    @TODO Replace with implementation that uses locale
+    Turn the amount as string into a decimal with the correct decimal seperator.
+    It uses the system locale to do this.
+
+    Return amount as Decimal if successful or None if not successful
     '''
 
-    # Replace comma delimiter to point delimiter
-    amount_point_delimiter = amount.replace(",", ".")
-    amount_point_delimiter = amount_point_delimiter.replace(".", "", amount_point_delimiter.count(".") -1)
+    localeSeperator = locale.localeconv()['decimal_point']
+    amountDecimal = None
 
-    return Decimal(amount_point_delimiter)
+    if amountSeperator == localeSeperator:
+        amountDecimal = Decimal(amount)
+
+    # Replace comma seperator to point seperator
+    if amountSeperator == ',':
+        amountPointSeperator = amount.replace(",", ".")
+        amountPointSeperator = amountPointSeperator.replace(
+            ".", "", amountPointSeperator.count(".")-1)
+
+        amountDecimal = Decimal(amountPointSeperator)
+
+    # Replace point seperator to point seperator
+    if amountSeperator == '.':
+        amountCommaSeperator = amount.replace(".", ",")
+        amountCommaSeperator = amountCommaSeperator.replace(
+            ",", "", amountCommaSeperator.count(","-1))
+
+        amountDecimal = Decimal(amountCommaSeperator)
+
+    return amountDecimal
 
 def parseAmount(amount, amountSeperator):
     '''
