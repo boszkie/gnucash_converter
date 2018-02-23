@@ -1,6 +1,7 @@
 import csv
 import datetime
 from decimal import *
+import locale
 
 
 class GnuCashConverter:
@@ -21,6 +22,8 @@ class GnuCashConverter:
 
                 if bank == 'rabobank':
                     converter = rabobankConverter(csv.reader(csvFile, delimiter=',', quotechar='"'))
+                elif bank == 'rabobank (old)':
+                    converter = rabobankTXTConverter(csv.reader(csvFile, delimiter=',', quotechar='"'))
                 elif bank == 'ing':
                     converter = ingConverter(csv.reader(csvFile, delimiter=';', quotechar='"'))
                 else:
@@ -85,7 +88,7 @@ class abstractConverter:
         not implemented yet
         '''
         self.final_balance = final_balance
-    
+
     def nextRow(self):
         '''
         do we have a next row for iteration
@@ -107,11 +110,105 @@ class abstractConverter:
         '''
         abstract method
         create a new row from an import csv row
+
+        A row contains the following elements:
+            [
+                Date,
+                Deposit,
+                Withdrawal,
+                Balance,
+                Description,
+            ]
         '''
         raise NotImplementedError('interface / abstract class!')
 
 
 class rabobankConverter(abstractConverter):
+    '''
+    strategy converter for rabobank csvs
+    '''
+
+    def newRow(self, row, counter):
+        '''
+        create a new row from an import csv row
+
+        A row contains the following elements:
+            [
+                Date,
+                Deposit,
+                Withdrawal,
+                Balance,
+                Description,
+            ]
+        '''
+        rabobankCsvDecimalSeperator = ','
+
+        # skip the title row
+        if counter == 0:
+            return False
+
+        newRow = []
+
+        # date
+        newRow.append(row[4])
+
+        amount = parseAmount(row[6], rabobankCsvDecimalSeperator).copy_abs()
+
+        # amount - credit
+        if amount >= 0:
+            newRow.append(amount)
+            newRow.append(0)
+
+        # amount - debet
+        else:
+            newRow.append(0)
+            newRow.append(amount)
+
+        # Balance
+        newRow.append(parseAmount(row[7], rabobankCsvDecimalSeperator))
+
+        newRow.append(self.setMessage(row))
+
+        return newRow
+
+    def calculateBalance(self, amount, type, counter):
+        '''
+        calculate the current balance
+        '''
+
+        if counter == 0:
+            return self.balance
+        else:
+            if type == "credit":
+                self.balance = Decimal(self.balance) + amount
+            elif type == "debet":
+                self.balance = Decimal(self.balance) - amount
+
+        return str(round(self.balance, 2))
+
+    def setMessage(self, row):
+        '''
+        collect the message from all possible rows
+        '''
+
+        messages = [
+            row[8],  # Tegenrekening IBAN/BBAN
+            row[12],  # BIC tegenpartij
+            row[9],  # Naam tegenpartij
+            row[19],  # Omschrijving-1
+            row[20],  # Omschrijving-2
+            row[21],  # Omschrijving-3
+            row[13],  # Code
+            row[15],  # Transactiereferentie
+            row[16],  # Machtigingskenmerk
+            row[17],  # Incassant ID
+            row[18],  # Betalingskenmerk
+        ]
+
+        return ' '.join(s.strip() for s in messages if s.strip())
+
+
+class rabobankTXTConverter(abstractConverter):
     '''
     strategy converter for rabobank csvs
     '''
@@ -233,6 +330,38 @@ class ingConverter(abstractConverter):
 
         return ''.join(c for c in message)
 
+
+def parseAmount(amount, amountSeperator):
+    '''
+    Turn the amount as string into a decimal with the correct decimal seperator.
+    It uses the system locale to do this.
+
+    Return amount as Decimal if successful or None if not successful
+    '''
+
+    localeSeperator = locale.localeconv()['decimal_point']
+    amountDecimal = None
+
+    if amountSeperator == localeSeperator:
+        amountDecimal = Decimal(amount)
+
+    # Replace comma seperator to point seperator
+    if amountSeperator == ',':
+        amountPointSeperator = amount.replace(",", ".")
+        amountPointSeperator = amountPointSeperator.replace(
+            ".", "", amountPointSeperator.count(".")-1)
+
+        amountDecimal = Decimal(amountPointSeperator)
+
+    # Replace point seperator to point seperator
+    if amountSeperator == '.':
+        amountCommaSeperator = amount.replace(".", ",")
+        amountCommaSeperator = amountCommaSeperator.replace(
+            ",", "", amountCommaSeperator.count(","-1))
+
+        amountDecimal = Decimal(amountCommaSeperator)
+
+    return amountDecimal
 
 if __name__ == '__main__':
     converter = GnuCashConverter()

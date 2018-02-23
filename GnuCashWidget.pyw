@@ -33,7 +33,7 @@ class GnuCashWidget(ttk.Frame):
         ttk.Button(main_widget, text='source file', command=self.askopenfile).grid(column=2, row=2)
         ttk.Entry(main_widget, width=20, textvariable=self.target_file).grid(column=1, row=3, sticky=(W, E))
         ttk.Button(main_widget, text="target file", command=self.asksavefile).grid(column=2, row=3)
-        lst1 = ['rabobank','ing']
+        lst1 = ['rabobank', 'rabobank (old)', 'rabobank','ing']
         ttk.OptionMenu(main_widget,self.bank,*lst1).grid(column=1, row=4)
         ttk.Label(main_widget, text="bank").grid(column=2, row=4, sticky=(W,E))
         ttk.Entry(main_widget, width=7, textvariable=self.initial_balance).grid(column=1, row=5, sticky=E)
