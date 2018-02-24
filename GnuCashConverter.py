@@ -151,7 +151,7 @@ class rabobankConverter(abstractConverter):
         # date
         newRow.append(row[4])
 
-        amount = parseAmount(row[6], rabobankCsvDecimalSeperator).copy_abs()
+        amount = parseAmount(row[6], rabobankCsvDecimalSeperator)
 
         # amount - credit
         if amount >= 0:
@@ -161,7 +161,7 @@ class rabobankConverter(abstractConverter):
         # amount - debet
         else:
             newRow.append(0)
-            newRow.append(amount)
+            newRow.append(amount.copy_abs())
 
         # Balance
         newRow.append(parseAmount(row[7], rabobankCsvDecimalSeperator))
@@ -366,13 +366,8 @@ if __name__ == '__main__':
     converter = GnuCashConverter()
     converter.setTesting()
     converter.convert(
-#            "test.csv",
-#            "result2.csv",
-#            "ing",
-#            121212,
-#            345)
-            "test2.csv",
-            "result2.csv",
+            "test.csv",
+            "result.csv",
             "rabobank",
             123234,
             345)
