@@ -41,7 +41,10 @@ class GnuCashConverter:
                     if (self.testing):
                         print(converter.getRow())
                     else:
-                        gnucashCsv.writerow(converter.getRow())
+                        parsedRow = converter.getRow()
+
+                        for data in converter.getRow():
+                            gnucashCsv.writerow(data)
 
     def setTesting(self):
         '''
@@ -366,7 +369,7 @@ if __name__ == '__main__':
     converter = GnuCashConverter()
     converter.setTesting()
     converter.convert(
-            "test.csv",
+            "tests/data/single_account.csv",
             "result.csv",
             "rabobank",
             123234,
