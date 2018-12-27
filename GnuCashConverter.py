@@ -38,6 +38,7 @@ class GnuCashConverter:
 
             self.write(converter, target)
 
+<<<<<<< HEAD
     def write(self, converted, target):
         '''
         write the extracted data to a csv
@@ -46,6 +47,9 @@ class GnuCashConverter:
         :param target: string
         :return: void
         '''
+=======
+                gnucashCsv.writerow(['account', 'date', 'deposit', 'withdrawal', 'balance', 'message'])
+>>>>>>> a2cc5b9... added account number to export
 
         with open(target, 'w', newline='') as newFile:
             gnucashCsv = csv.writer(newFile, delimiter=';', quotechar='"', quoting=csv.QUOTE_MINIMAL)
@@ -74,6 +78,7 @@ class GnuCashConverter:
                     ])
 =======
                         gnucashCsv.writerow([
+                            parsedRow['account'],
                             parsedRow['date'],
                             parsedRow['deposit'],
                             parsedRow['withdrawal'],
