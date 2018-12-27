@@ -34,7 +34,7 @@ class GnuCashConverter:
 
                 gnucashCsv = csv.writer(newFile, delimiter=';', quotechar='"', quoting=csv.QUOTE_MINIMAL)
 
-                gnucashCsv.writerow(['date', 'deposit', 'withdrawal', 'balance', 'message'])
+                gnucashCsv.writerow(['account', 'date', 'deposit', 'withdrawal', 'balance', 'message'])
 
                 # converter class is iterable
                 while converter.nextRow():
@@ -44,6 +44,7 @@ class GnuCashConverter:
                         parsedRow = converter.getRow()
 
                         gnucashCsv.writerow([
+                            parsedRow['account'],
                             parsedRow['date'],
                             parsedRow['deposit'],
                             parsedRow['withdrawal'],
@@ -155,6 +156,9 @@ class rabobankConverter(abstractConverter):
             return False
 
         newRow = {}
+
+        # account
+        newRow['account'] = row[0]
 
         # date
         newRow['date'] = row[4]
