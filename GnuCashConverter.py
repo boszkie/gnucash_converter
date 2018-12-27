@@ -50,7 +50,11 @@ class GnuCashConverter:
         with open(target, 'w', newline='') as newFile:
             gnucashCsv = csv.writer(newFile, delimiter=';', quotechar='"', quoting=csv.QUOTE_MINIMAL)
 
+<<<<<<< HEAD
             gnucashCsv.writerow(['account', 'date', 'deposit', 'withdrawal', 'balance', 'message'])
+=======
+                gnucashCsv.writerow(['date', 'deposit', 'withdrawal', 'balance', 'message'])
+>>>>>>> f0a91c6... write using the dictionary, depoist and withdrawal where switched, docu
 
             # converter class is iterable
             while converter.nextRow():
@@ -59,6 +63,7 @@ class GnuCashConverter:
                 else:
                     parsedRow = converter.getRow()
 
+<<<<<<< HEAD
                     gnucashCsv.writerow([
                         parsedRow['account'],
                         parsedRow['date'],
@@ -67,6 +72,15 @@ class GnuCashConverter:
                         parsedRow['balance'],
                         parsedRow['message']
                     ])
+=======
+                        gnucashCsv.writerow([
+                            parsedRow['date'],
+                            parsedRow['deposit'],
+                            parsedRow['withdrawal'],
+                            parsedRow['balance'],
+                            parsedRow['message']
+                        ])
+>>>>>>> f0a91c6... write using the dictionary, depoist and withdrawal where switched, docu
 
     def setTesting(self):
         '''
@@ -237,6 +251,10 @@ class rabobankConverter(abstractConverter):
             row[9],  # Naam tegenpartij
             row[19],  # Omschrijving-1
             row[20],  # Omschrijving-2
+<<<<<<< HEAD
+=======
+            # row[21],  # Omschrijving-3
+>>>>>>> f0a91c6... write using the dictionary, depoist and withdrawal where switched, docu
             row[13],  # Code
             row[15],  # Transactiereferentie
             row[16],  # Machtigingskenmerk
