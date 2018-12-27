@@ -34,7 +34,7 @@ class GnuCashConverter:
 
                 gnucashCsv = csv.writer(newFile, delimiter=';', quotechar='"', quoting=csv.QUOTE_MINIMAL)
 
-                gnucashCsv.writerow(['date', 'credit', 'withdrawal', 'balance', 'message'])
+                gnucashCsv.writerow(['date', 'deposit', 'withdrawal', 'balance', 'message'])
 
                 # converter class is iterable
                 while converter.nextRow():
@@ -43,8 +43,13 @@ class GnuCashConverter:
                     else:
                         parsedRow = converter.getRow()
 
-                        for data in converter.getRow():
-                            gnucashCsv.writerow(data)
+                        gnucashCsv.writerow([
+                            parsedRow['date'],
+                            parsedRow['deposit'],
+                            parsedRow['withdrawal'],
+                            parsedRow['balance'],
+                            parsedRow['message']
+                        ])
 
     def setTesting(self):
         '''
@@ -158,13 +163,13 @@ class rabobankConverter(abstractConverter):
 
         # amount - deposit
         if amount >= 0:
-            newRow['withdrawal'] = amount
-            newRow['deposit'] = 0
+            newRow['deposit'] = amount
+            newRow['withdrawal'] = 0
 
         # amount - withdrawal
         else:
-            newRow['withdrawal'] = 0
-            newRow['deposit'] = amount.copy_abs()
+            newRow['deposit'] = 0
+            newRow['withdrawal'] = amount.copy_abs()
 
         # Balance
         newRow['balance'] = parseAmount(row[7], rabobankCsvDecimalSeperator)
@@ -199,7 +204,7 @@ class rabobankConverter(abstractConverter):
             row[9],  # Naam tegenpartij
             row[19],  # Omschrijving-1
             row[20],  # Omschrijving-2
-            row[21],  # Omschrijving-3
+            # row[21],  # Omschrijving-3
             row[13],  # Code
             row[15],  # Transactiereferentie
             row[16],  # Machtigingskenmerk
@@ -367,7 +372,7 @@ def parseAmount(amount, amountSeperator):
 
 if __name__ == '__main__':
     converter = GnuCashConverter()
-    converter.setTesting()
+    # converter.setTesting()
     converter.convert(
             "tests/data/single_account.csv",
             "result.csv",
