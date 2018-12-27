@@ -59,10 +59,10 @@ class abstractConverter:
         '''
         setup class, save csv reader
         '''
-        self.reader    = reader
-        self.pointer     = 0
-        self.rowcount    = 0
-        self.rows        = []
+        self.reader   = reader
+        self.pointer  = 0
+        self.rowcount = 0
+        self.rows     = []
 
     def convert(self):
         '''
@@ -209,7 +209,7 @@ class rabobankConverter(abstractConverter):
 
 class rabobankTXTConverter(abstractConverter):
     '''
-    strategy converter for rabobank csvs
+    strategy converter for rabobank cvs
     '''
 
     def newRow(self, row, counter):
