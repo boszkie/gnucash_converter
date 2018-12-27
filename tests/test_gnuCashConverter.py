@@ -9,22 +9,22 @@ class TestGnuCashConverter(TestCase):
         csvFile = 'data/single_account.csv'
 
         with open(csvFile) as openCsvFile:
-            converter = rabobankConverter(csv.reader(openCsvFile, delimiter=',', quotechar='"'))
+            row = self.extractRow(openCsvFile)
 
-            converter.setInitialBalance(123)
-            converter.setFinalBalance(0)
-            converter.convert()
+            self.assertEqual(row['date'], '2017-12-25')
+            self.assertEqual(row['withdrawal'], 0)
+            self.assertEqual(row['deposit'], Decimal('1800.00'))
+            self.assertEqual(row['balance'], Decimal('6312.58'))
+            self.assertEqual(row['message'], 'NL54RABO0143316680 RABONL2UXXX E. DE BOS EO voor de huisrekening en hypotheek bg')
 
-        while converter.nextRow():
-            row = converter.getRow()
+    '''
+    extract rows from csv
+    '''
+    def extractRow(selfself, csvFile):
+        converter = rabobankConverter(csv.reader(csvFile, delimiter=',', quotechar='"'))
 
-            # date
-            self.assertEqual(row[0], '2017-12-25')
-            # credit
-            self.assertEqual(row[1], 0)
-            # debet
-            self.assertEqual(row[2], Decimal('1800.00'))
-            # balance
-            self.assertEqual(row[3], Decimal('6312.58'))
-            # message
-            self.assertEqual(row[4], 'NL54RABO0143316680 RABONL2UXXX E. DE BOS EO voor de huisrekening en hypotheek bg')
+        converter.setInitialBalance(123)
+        converter.setFinalBalance(0)
+        converter.convert()
+
+        return converter.getRow()

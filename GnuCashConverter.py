@@ -34,7 +34,7 @@ class GnuCashConverter:
 
                 gnucashCsv = csv.writer(newFile, delimiter=';', quotechar='"', quoting=csv.QUOTE_MINIMAL)
 
-                gnucashCsv.writerow(['date', 'credit', 'debet', 'cumulative', 'message'])
+                gnucashCsv.writerow(['date', 'credit', 'withdrawal', 'balance', 'message'])
 
                 # converter class is iterable
                 while converter.nextRow():
@@ -133,7 +133,7 @@ class rabobankConverter(abstractConverter):
 
         A row contains the following elements:
             [
-                Date,
+                date,
                 Deposit,
                 Withdrawal,
                 Balance,
@@ -146,27 +146,27 @@ class rabobankConverter(abstractConverter):
         if counter == 0:
             return False
 
-        newRow = []
+        newRow = {}
 
         # date
-        newRow.append(row[4])
+        newRow['date'] = row[4]
 
         amount = parseAmount(row[6], rabobankCsvDecimalSeperator)
 
-        # amount - credit
+        # amount - deposit
         if amount >= 0:
-            newRow.append(amount)
-            newRow.append(0)
+            newRow['withdrawal'] = amount
+            newRow['deposit'] = 0
 
-        # amount - debet
+        # amount - withdrawal
         else:
-            newRow.append(0)
-            newRow.append(amount.copy_abs())
+            newRow['withdrawal'] = 0
+            newRow['deposit'] = amount.copy_abs()
 
         # Balance
-        newRow.append(parseAmount(row[7], rabobankCsvDecimalSeperator))
+        newRow['balance'] = parseAmount(row[7], rabobankCsvDecimalSeperator)
 
-        newRow.append(self.setMessage(row))
+        newRow['message'] = self.setMessage(row)
 
         return newRow
 
@@ -178,9 +178,9 @@ class rabobankConverter(abstractConverter):
         if counter == 0:
             return self.balance
         else:
-            if type == "credit":
+            if type == "deposit":
                 self.balance = Decimal(self.balance) + amount
-            elif type == "debet":
+            elif type == "withdrawal":
                 self.balance = Decimal(self.balance) - amount
 
         return str(round(self.balance, 2))
@@ -223,18 +223,18 @@ class rabobankTXTConverter(abstractConverter):
         # there are two dates - this one seems to be the more accurate one
         new_row.append(datetime.datetime.strptime(row[2], "%Y%m%d").strftime("%Y-%m-%d"))
 
-        # amount - credit
+        # amount - deposit
         if row[3] == 'C':
             new_row.append(row[4])
             new_row.append(0)
 
-            new_row.append(self.calculateBalance(Decimal(row[4]), "credit", counter))
-        # amount - debet
+            new_row.append(self.calculateBalance(Decimal(row[4]), "deposit", counter))
+        # amount - withdrawal
         elif row[3] == 'D':
             new_row.append(0)
             new_row.append(row[4])
 
-            new_row.append(self.calculateBalance(Decimal(row[4]), "debet", counter))
+            new_row.append(self.calculateBalance(Decimal(row[4]), "withdrawal", counter))
 
         new_row.append(self.setMessage(row))
 
@@ -248,9 +248,9 @@ class rabobankTXTConverter(abstractConverter):
         if counter == 0:
             return self.balance
         else:
-            if type == "credit":
+            if type == "deposit":
                 self.balance = Decimal(self.balance) + amount
-            elif type == "debet":
+            elif type == "withdrawal":
                 self.balance = Decimal(self.balance) - amount
 
         return str(round(self.balance, 2))
@@ -284,18 +284,18 @@ class ingConverter(abstractConverter):
         # date
         new_row.append(datetime.datetime.strptime(row[1], "%Y%m%d").strftime("%Y-%m-%d"))
 
-        # amount - credit
+        # amount - deposit
         if row[6] == 'Bij':
             new_row.append(row[7].replace(",", "."))
             new_row.append(0)
 
-            new_row.append(self.calculateBalance(Decimal(row[7].replace(",", ".")), "credit", counter))
-        # amount - debet
+            new_row.append(self.calculateBalance(Decimal(row[7].replace(",", ".")), "deposit", counter))
+        # amount - withdrawal
         elif row[6] == 'Af':
             new_row.append(0)
             new_row.append(row[7].replace(",", "."))
 
-            new_row.append(self.calculateBalance(Decimal(row[7].replace(",", ".")), "debet", counter))
+            new_row.append(self.calculateBalance(Decimal(row[7].replace(",", ".")), "withdrawal", counter))
 
         new_row.append(self.setMessage(row))
 
@@ -309,9 +309,9 @@ class ingConverter(abstractConverter):
         if counter == 0:
             return self.balance
         else:
-            if type == "credit":
+            if type == "deposit":
                 self.balance = Decimal(self.balance) + amount
-            elif type == "debet":
+            elif type == "withdrawal":
                 self.balance = Decimal(self.balance) - amount
 
         return str(round(self.balance, 2))
