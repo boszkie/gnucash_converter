@@ -3,6 +3,7 @@ import datetime
 from decimal import *
 import locale
 
+
 class GnuCashConverter:
     '''
     csv to gnucash csv import conversion
@@ -11,51 +12,69 @@ class GnuCashConverter:
 
     testing = False
 
-    def convert(self, source, target, bank, initial_balance, final_balance):
+    def convert(self, source, target, bank, initial_balance):
         '''
         manages the conversion
+
+        :param source: string
+        :param target: string
+        :param bank: string
+        :param initial_balance: string
+        :return: void
         '''
 
         with open(source) as csvFile:
-            with open (target, 'w', newline='') as newFile:
+            if bank == 'rabobank':
+                converter = rabobankConverter(csv.reader(csvFile, delimiter=',', quotechar='"'))
+            elif bank == 'rabobank (old)':
+                converter = rabobankTXTConverter(csv.reader(csvFile, delimiter=',', quotechar='"'))
+            elif bank == 'ing':
+                converter = ingConverter(csv.reader(csvFile, delimiter=';', quotechar='"'))
+            else:
+                return False
 
-                if bank == 'rabobank':
-                    converter = rabobankConverter(csv.reader(csvFile, delimiter=',', quotechar='"'))
-                elif bank == 'rabobank (old)':
-                    converter = rabobankTXTConverter(csv.reader(csvFile, delimiter=',', quotechar='"'))
-                elif bank == 'ing':
-                    converter = ingConverter(csv.reader(csvFile, delimiter=';', quotechar='"'))
+            converter.setInitialBalance(initial_balance)
+            converter.convert()
+
+            self.write(converter, target)
+
+    def write(self, converted, target):
+        '''
+        write the extracted data to a csv
+
+        :param converted: object
+        :param target: string
+        :return: void
+        '''
+
+        with open(target, 'w', newline='') as newFile:
+            gnucashCsv = csv.writer(newFile, delimiter=';', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+
+            gnucashCsv.writerow(['account', 'date', 'deposit', 'withdrawal', 'balance', 'message'])
+
+            # converter class is iterable
+            while converted.nextRow():
+                if self.testing:
+                    print(converted.getRow())
                 else:
-                    return False
+                    parsedRow = converted.getRow()
 
-                converter.setInitialBalance(initial_balance)
-                converter.setFinalBalance(final_balance)
-                converter.convert()
-
-                gnucashCsv = csv.writer(newFile, delimiter=';', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-
-                gnucashCsv.writerow(['account', 'date', 'deposit', 'withdrawal', 'balance', 'message'])
-
-                # converter class is iterable
-                while converter.nextRow():
-                    if (self.testing):
-                        print(converter.getRow())
-                    else:
-                        parsedRow = converter.getRow()
-
-                        gnucashCsv.writerow([
-                            parsedRow['account'],
-                            parsedRow['date'],
-                            parsedRow['deposit'],
-                            parsedRow['withdrawal'],
-                            parsedRow['balance'],
-                            parsedRow['message']
-                        ])
+                    gnucashCsv.writerow([
+                        parsedRow['account'],
+                        parsedRow['date'],
+                        parsedRow['deposit'],
+                        parsedRow['withdrawal'],
+                        parsedRow['balance'],
+                        parsedRow['message']
+                    ])
 
     def setTesting(self):
         '''
         to set the conversion to print results instead of writing to a csv
+
+        :return: void
         '''
+
         self.testing = True
 
 
@@ -67,8 +86,13 @@ class abstractConverter:
     def __init__(self, reader):
         '''
         setup class, save csv reader
+
+        :param reader: object
+        :return void
         '''
+
         self.reader   = reader
+        self.balance = 0
         self.pointer  = 0
         self.rowcount = 0
         self.rows     = []
@@ -76,7 +100,10 @@ class abstractConverter:
     def convert(self):
         '''
         extract data from the import csv into row array
+
+        :return void
         '''
+
         for counter, row in enumerate(self.reader):
             new_row = self.newRow(row, counter)
             if new_row:
@@ -87,20 +114,20 @@ class abstractConverter:
     def setInitialBalance(self, initial_balance):
         '''
         set the initial balance, for the balance column
-        '''
-        self.balance = initial_balance
 
-    def setFinalBalance(self, final_balance):
+        :param initial_balance: string
+        :return void
         '''
-        set the final balance to check results
-        not implemented yet
-        '''
-        self.final_balance = final_balance
+
+        self.balance = initial_balance
 
     def nextRow(self):
         '''
         do we have a next row for iteration
+
+        :return boolean
         '''
+
         if self.pointer >= self.rowcount:
             return False
 
@@ -109,7 +136,10 @@ class abstractConverter:
     def getRow(self):
         '''
         get the next row
+
+        :return object
         '''
+
         self.pointer += 1
 
         return self.rows[self.pointer - 1]
@@ -128,6 +158,7 @@ class abstractConverter:
                 Description,
             ]
         '''
+
         raise NotImplementedError('interface / abstract class!')
 
 
@@ -149,6 +180,7 @@ class rabobankConverter(abstractConverter):
                 Description,
             ]
         '''
+
         rabobankCsvDecimalSeperator = ','
 
         # skip the title row
@@ -378,8 +410,8 @@ if __name__ == '__main__':
     converter = GnuCashConverter()
     # converter.setTesting()
     converter.convert(
-            "tests/data/single_account.csv",
-            "result.csv",
-            "rabobank",
-            123234,
-            345)
+        "tests/data/single_account.csv",
+        "result.csv",
+        "rabobank",
+        123234
+    )
