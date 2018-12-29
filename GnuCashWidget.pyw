@@ -13,7 +13,6 @@ class GnuCashWidget(ttk.Frame):
         self.target_file     = StringVar()
         self.bank            = StringVar()
         self.initial_balance = StringVar()
-        self.final_balance   = StringVar()
         self.message         = StringVar()
 
         root.title("GnuCash Converter")
@@ -38,8 +37,6 @@ class GnuCashWidget(ttk.Frame):
         ttk.Label(main_widget, text="bank").grid(column=2, row=4, sticky=(W,E))
         ttk.Entry(main_widget, width=7, textvariable=self.initial_balance).grid(column=1, row=5, sticky=E)
         ttk.Label(main_widget, text="starting balance").grid(column=2, row=5, sticky=(W,E))
-        ttk.Entry(main_widget, width=7, textvariable=self.final_balance).grid(column=1, row=6, sticky=E)
-        ttk.Label(main_widget, text="final balance").grid(column=2, row=6, sticky=(W,E))
         ttk.Button(main_widget, text="Convert", command=self.convert).grid(column=2, row=7)
         ttk.Button(main_widget, text="Close", command=self.stop).grid(column=1, row=7)
 

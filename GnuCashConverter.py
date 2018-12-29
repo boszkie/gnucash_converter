@@ -12,13 +12,26 @@ class GnuCashConverter:
 
     testing = False
 
-    def convert(self, source, target, bank, initial_balance, final_balance):
+    def convert(self, source, target, bank, initial_balance):
         '''
         manages the conversion
+
+        :param source: string
+        :param target: string
+        :param bank: string
+        :param initial_balance: string
+        :return: void
         '''
 
         with open(source) as csvFile:
-            with open (target, 'w', newline='') as newFile:
+            if bank == 'rabobank':
+                converter = rabobankConverter(csv.reader(csvFile, delimiter=',', quotechar='"'))
+            elif bank == 'rabobank (old)':
+                converter = rabobankTXTConverter(csv.reader(csvFile, delimiter=',', quotechar='"'))
+            elif bank == 'ing':
+                converter = ingConverter(csv.reader(csvFile, delimiter=';', quotechar='"'))
+            else:
+                return False
 
                 if bank == 'rabobank':
                     converter = rabobankConverter(csv.reader(csvFile, delimiter=',', quotechar='"'))
@@ -29,11 +42,19 @@ class GnuCashConverter:
                 else:
                     return False
 
-                converter.setInitialBalance(initial_balance)
-                converter.setFinalBalance(final_balance)
-                converter.convert()
+    def write(self, converted, target):
+        '''
+        write the extracted data to a csv
 
-                gnucashCsv = csv.writer(newFile, delimiter=';', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+        :param converted: object
+        :param target: string
+        :return: void
+        '''
+
+        with open(target, 'w', newline='') as newFile:
+            gnucashCsv = csv.writer(newFile, delimiter=';', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+
+            gnucashCsv.writerow(['account', 'date', 'deposit', 'withdrawal', 'balance', 'message'])
 
                 gnucashCsv.writerow(['account', 'date', 'deposit', 'withdrawal', 'balance', 'message'])
 
@@ -56,7 +77,10 @@ class GnuCashConverter:
     def setTesting(self):
         '''
         to set the conversion to print results instead of writing to a csv
+
+        :return: void
         '''
+
         self.testing = True
 
 
@@ -68,6 +92,9 @@ class abstractConverter:
     def __init__(self, reader):
         '''
         setup class, save csv reader
+
+        :param reader: object
+        :return void
         '''
         self.reader   = reader
         self.pointer  = 0
@@ -77,7 +104,10 @@ class abstractConverter:
     def convert(self):
         '''
         extract data from the import csv into row array
+
+        :return void
         '''
+
         for counter, row in enumerate(self.reader):
             new_row = self.newRow(row, counter)
             if new_row:
@@ -88,7 +118,11 @@ class abstractConverter:
     def setInitialBalance(self, initial_balance):
         '''
         set the initial balance, for the balance column
+
+        :param initial_balance: string
+        :return void
         '''
+
         self.balance = initial_balance
 
     def setFinalBalance(self, final_balance):
@@ -101,7 +135,10 @@ class abstractConverter:
     def nextRow(self):
         '''
         do we have a next row for iteration
+
+        :return boolean
         '''
+
         if self.pointer >= self.rowcount:
             return False
 
@@ -110,7 +147,10 @@ class abstractConverter:
     def getRow(self):
         '''
         get the next row
+
+        :return object
         '''
+
         self.pointer += 1
 
         return self.rows[self.pointer - 1]
@@ -129,6 +169,7 @@ class abstractConverter:
                 Description,
             ]
         '''
+
         raise NotImplementedError('interface / abstract class!')
 
 
@@ -375,6 +416,38 @@ def parseAmount(amount, amountSeperator):
 
     return amountDecimal
 
+def parseAmount(amount, amountSeperator):
+    '''
+    Turn the amount as string into a decimal with the correct decimal seperator.
+    It uses the system locale to do this.
+
+    Return amount as Decimal if successful or None if not successful
+    '''
+
+    localeSeperator = locale.localeconv()['decimal_point']
+    amountDecimal = None
+
+    if amountSeperator == localeSeperator:
+        amountDecimal = Decimal(amount)
+
+    # Replace comma seperator to point seperator
+    if amountSeperator == ',':
+        amountPointSeperator = amount.replace(",", ".")
+        amountPointSeperator = amountPointSeperator.replace(
+            ".", "", amountPointSeperator.count(".")-1)
+
+        amountDecimal = Decimal(amountPointSeperator)
+
+    # Replace point seperator to point seperator
+    if amountSeperator == '.':
+        amountCommaSeperator = amount.replace(".", ",")
+        amountCommaSeperator = amountCommaSeperator.replace(
+            ",", "", amountCommaSeperator.count(","-1))
+
+        amountDecimal = Decimal(amountCommaSeperator)
+
+    return amountDecimal
+
 if __name__ == '__main__':
     converter = GnuCashConverter()
     # converter.setTesting()
@@ -388,5 +461,4 @@ if __name__ == '__main__':
             "tests/data/single_account.csv",
             "result.csv",
             "rabobank",
-            123234,
-            345)
+            123234)
