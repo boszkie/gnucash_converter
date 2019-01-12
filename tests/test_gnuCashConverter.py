@@ -15,7 +15,7 @@ class TestGnuCashConverter(TestCase):
             self.assertEqual(row['withdrawal'], 0)
             self.assertEqual(row['deposit'], Decimal('1800.00'))
             self.assertEqual(row['balance'], Decimal('6312.58'))
-            self.assertEqual(row['message'], 'NL54RABO0143316680 RABONL2UXXX E. DE BOS EO voor de huisrekening en hypotheek bg')
+            self.assertEqual(row['message'], 'test message')
 
     '''
     extract rows from csv
