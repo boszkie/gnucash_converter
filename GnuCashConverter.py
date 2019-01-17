@@ -3,7 +3,6 @@ import datetime
 from decimal import *
 import locale
 
-
 class GnuCashConverter:
     '''
     csv to gnucash csv import conversion
