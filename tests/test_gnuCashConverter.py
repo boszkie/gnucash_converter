@@ -7,7 +7,7 @@ class TestGnuCashConverter(TestCase):
     test that we consistently import a single csv row
     '''
 
-    csv_file = 'data/single_account.csv'
+    csv_file = 'tests/data/single_account.csv'
 
     def testRaboConverter(self):
         '''
@@ -19,11 +19,11 @@ class TestGnuCashConverter(TestCase):
         converter = self.prepareConverter()
         row = converter.getRow()
 
-        self.assertEqual(row['date'], '2017-12-25')
+        self.assertEqual(row['date'], '2017-12-01')
         self.assertEqual(row['deposit'], 0)
-        self.assertEqual(row['withdrawal'], Decimal('1800.00'))
-        self.assertEqual(row['balance'], Decimal('6312.58'))
-        self.assertEqual(row['message'], 'NL54RABO0143316680 RABONL2UXXX E. DE BOS EO voor de huisrekening en hypotheek bg')
+        self.assertEqual(row['withdrawal'], Decimal('38.16'))
+        self.assertEqual(row['balance'], Decimal('4664.10'))
+        self.assertEqual(row['message'], 'Tegenrekening IBAN/BBAN BIC tegenpartij Naam tegenpartij Omschrijving-1 Omschrijving-2 Code Transactiereferentie Machtigingskenmerk Incassant ID Betalingskenmerk')
 
     def prepareConverter(self):
         '''
@@ -39,7 +39,3 @@ class TestGnuCashConverter(TestCase):
             converter.convert()
 
             return converter
-
-    def testWriting(self):
-        converted = self.prepareConverter()
-        GnuCashConverter.write(converted, 'test.csv')
