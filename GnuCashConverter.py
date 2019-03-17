@@ -238,13 +238,13 @@ if __name__ == '__main__':
     converter = GnuCashConverter()
     converter.setTesting()
     converter.convert(
-#            "C:/home/2016/NL16INGB0007098871_01-06-2016_10-10-2016.csv",
-#            "C:/coding/python/fred1.csv", 
+#            "test.csv",
+#            "result2.csv", 
 #            "ing", 
-#            2160.86, 
+#            121212, 
 #            345)
-            "C:/home/2016/20160601_20160923_home.csv",
-            "C:/coding/python/fred1.csv",
+            "test2.csv",
+            "result2.csv",
             "rabobank",
-            2608.91,
+            123234,
             345)
