@@ -33,14 +33,10 @@ class GnuCashConverter:
             else:
                 return False
 
-                if bank == 'rabobank':
-                    converter = rabobankConverter(csv.reader(csvFile, delimiter=',', quotechar='"'))
-                elif bank == 'rabobank (old)':
-                    converter = rabobankTXTConverter(csv.reader(csvFile, delimiter=',', quotechar='"'))
-                elif bank == 'ing':
-                    converter = ingConverter(csv.reader(csvFile, delimiter=';', quotechar='"'))
-                else:
-                    return False
+            converter.setInitialBalance(initial_balance)
+            converter.convert()
+
+            self.write(converter, target)
 
     def write(self, converted, target):
         '''
@@ -56,23 +52,21 @@ class GnuCashConverter:
 
             gnucashCsv.writerow(['account', 'date', 'deposit', 'withdrawal', 'balance', 'message'])
 
-                gnucashCsv.writerow(['account', 'date', 'deposit', 'withdrawal', 'balance', 'message'])
+            # converter class is iterable
+            while converter.nextRow():
+                if (self.testing):
+                    print(converter.getRow())
+                else:
+                    parsedRow = converter.getRow()
 
-                # converter class is iterable
-                while converter.nextRow():
-                    if (self.testing):
-                        print(converter.getRow())
-                    else:
-                        parsedRow = converter.getRow()
-
-                        gnucashCsv.writerow([
-                            parsedRow['account'],
-                            parsedRow['date'],
-                            parsedRow['deposit'],
-                            parsedRow['withdrawal'],
-                            parsedRow['balance'],
-                            parsedRow['message']
-                        ])
+                    gnucashCsv.writerow([
+                        parsedRow['account'],
+                        parsedRow['date'],
+                        parsedRow['deposit'],
+                        parsedRow['withdrawal'],
+                        parsedRow['balance'],
+                        parsedRow['message']
+                    ])
 
     def setTesting(self):
         '''
@@ -124,13 +118,6 @@ class abstractConverter:
         '''
 
         self.balance = initial_balance
-
-    def setFinalBalance(self, final_balance):
-        '''
-        set the final balance to check results
-        not implemented yet
-        '''
-        self.final_balance = final_balance
 
     def nextRow(self):
         '''
@@ -191,6 +178,7 @@ class rabobankConverter(abstractConverter):
                 Description,
             ]
         '''
+  
         rabobankCsvDecimalSeperator = ','
 
         # skip the title row
@@ -250,7 +238,6 @@ class rabobankConverter(abstractConverter):
             row[9],  # Naam tegenpartij
             row[19],  # Omschrijving-1
             row[20],  # Omschrijving-2
-            # row[21],  # Omschrijving-3
             row[13],  # Code
             row[15],  # Transactiereferentie
             row[16],  # Machtigingskenmerk
@@ -455,9 +442,7 @@ if __name__ == '__main__':
 #            "test.csv",
 #            "result2.csv", 
 #            "ing", 
-#            121212, 
-#            345)
-            "test.csv",
+#            121212)
             "tests/data/single_account.csv",
             "result.csv",
             "rabobank",
