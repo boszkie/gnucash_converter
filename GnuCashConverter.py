@@ -178,11 +178,7 @@ class rabobankConverter(abstractConverter):
                 Description,
             ]
         '''
-<<<<<<< HEAD
 
-=======
-  
->>>>>>> 3493d20... repairs after messing with rebase
         rabobankCsvDecimalSeperator = ','
 
         # skip the title row
