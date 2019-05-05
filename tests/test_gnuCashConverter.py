@@ -8,7 +8,7 @@ class TestGnuCashConverter(TestCase):
     test that we consistently import a single csv row
     '''
 
-    csv_file = os.getcwd() + '/tests/data/single_account.csv'
+    csv_file = os.getcwd() + '/data/single_account.csv'
 
     def prepareConverter(self):
         '''

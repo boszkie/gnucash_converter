@@ -75,7 +75,8 @@ class GnuCashWidget(ttk.Frame):
         self.target_file.set(filename)
 
     def convert(self):
-        converter.convert(self.source_file.get(), self.target_file.get(), self.bank.get(), self.initial_balance.get(), self.final_balance.get())
+        converter = GnuCashConverter()
+        converter.convert(self.source_file.get(), self.target_file.get(), self.bank.get(), self.initial_balance.get())
 
         self.message['text'] = 'conversion succesfull'
 

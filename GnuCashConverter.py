@@ -38,7 +38,7 @@ class GnuCashConverter:
 
             self.write(converter, target)
 
-    def write(self, converted, target):
+    def write(self, converter, target):
         '''
         write the extracted data to a csv
 
