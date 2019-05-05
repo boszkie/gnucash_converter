@@ -38,7 +38,7 @@ class GnuCashConverter:
 
             self.write(converter, target)
 
-    def write(self, converted, target):
+    def write(self, converter, target):
         '''
         write the extracted data to a csv
 
@@ -53,11 +53,11 @@ class GnuCashConverter:
             gnucashCsv.writerow(['account', 'date', 'deposit', 'withdrawal', 'balance', 'message'])
 
             # converter class is iterable
-            while converted.nextRow():
-                if self.testing:
-                    print(converted.getRow())
+            while converter.nextRow():
+                if (self.testing):
+                    print(converter.getRow())
                 else:
-                    parsedRow = converted.getRow()
+                    parsedRow = converter.getRow()
 
                     gnucashCsv.writerow([
                         parsedRow['account'],
@@ -90,9 +90,7 @@ class abstractConverter:
         :param reader: object
         :return void
         '''
-
         self.reader   = reader
-        self.balance = 0
         self.pointer  = 0
         self.rowcount = 0
         self.rows     = []
@@ -240,7 +238,6 @@ class rabobankConverter(abstractConverter):
             row[9],  # Naam tegenpartij
             row[19],  # Omschrijving-1
             row[20],  # Omschrijving-2
-            # row[21],  # Omschrijving-3
             row[13],  # Code
             row[15],  # Transactiereferentie
             row[16],  # Machtigingskenmerk
@@ -406,12 +403,47 @@ def parseAmount(amount, amountSeperator):
 
     return amountDecimal
 
+def parseAmount(amount, amountSeperator):
+    '''
+    Turn the amount as string into a decimal with the correct decimal seperator.
+    It uses the system locale to do this.
+
+    Return amount as Decimal if successful or None if not successful
+    '''
+
+    localeSeperator = locale.localeconv()['decimal_point']
+    amountDecimal = None
+
+    if amountSeperator == localeSeperator:
+        amountDecimal = Decimal(amount)
+
+    # Replace comma seperator to point seperator
+    if amountSeperator == ',':
+        amountPointSeperator = amount.replace(",", ".")
+        amountPointSeperator = amountPointSeperator.replace(
+            ".", "", amountPointSeperator.count(".")-1)
+
+        amountDecimal = Decimal(amountPointSeperator)
+
+    # Replace point seperator to point seperator
+    if amountSeperator == '.':
+        amountCommaSeperator = amount.replace(".", ",")
+        amountCommaSeperator = amountCommaSeperator.replace(
+            ",", "", amountCommaSeperator.count(","-1))
+
+        amountDecimal = Decimal(amountCommaSeperator)
+
+    return amountDecimal
+
 if __name__ == '__main__':
     converter = GnuCashConverter()
     # converter.setTesting()
     converter.convert(
-        "tests/data/single_account.csv",
-        "result.csv",
-        "rabobank",
-        123234
-    )
+#            "test.csv",
+#            "result2.csv", 
+#            "ing", 
+#            121212)
+            "tests/data/single_account.csv",
+            "result.csv",
+            "rabobank",
+            123234)
